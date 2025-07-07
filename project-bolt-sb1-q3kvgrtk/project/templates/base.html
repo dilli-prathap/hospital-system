@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hospital Management System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-hospital text-white text-2xl mr-3"></i>
+                    <a href="{{ url_for('index') }}" class="text-white text-xl font-bold">MediCare Hospital</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('patients') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-users mr-2"></i>Patients
+                    </a>
+                    <a href="{{ url_for('appointments') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-calendar-alt mr-2"></i>Appointments
+                    </a>
+                    <a href="{{ url_for('pharmacy') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-pills mr-2"></i>Pharmacy
+                    </a>
+                    <a href="{{ url_for('billing') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-receipt mr-2"></i>Billing
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded mb-4 fade-in">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }} mr-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2024 MediCare Hospital Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Dynamic search functionality
+        function setupSearch(inputId, resultsId, apiEndpoint) {
+            const input = document.getElementById(inputId);
+            const results = document.getElementById(resultsId);
+            
+            if (input && results) {
+                input.addEventListener('input', async function() {
+                    const query = this.value;
+                    if (query.length > 2) {
+                        try {
+                            const response = await fetch(`${apiEndpoint}?q=${encodeURIComponent(query)}`);
+                            const data = await response.json();
+                            
+                            results.innerHTML = '';
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                                div.textContent = item.name;
+                                div.onclick = () => {
+                                    input.value = item.name;
+                                    input.dataset.selectedId = item.id;
+                                    results.innerHTML = '';
+                                };
+                                results.appendChild(div);
+                            });
+                        } catch (error) {
+                            console.error('Search error:', error);
+                        }
+                    } else {
+                        results.innerHTML = '';
+                    }
+                });
+            }
+        }
+        
+        // Form validation
+        function validateForm(formId) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = form.querySelectorAll('[required]');
+                    let isValid = true;
+                    
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            field.classList.add('border-red-500');
+                            isValid = false;
+                        } else {
+                            field.classList.remove('border-red-500');
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert('Please fill in all required fields.');
+                    }
+                });
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in animation to main content
+            document.querySelector('main').classList.add('fade-in');
+            
+            // Setup form validation for all forms
+            document.querySelectorAll('form').forEach(form => {
+                validateForm(form.id);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Pharmacy - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-pills mr-3 text-purple-600"></i>
+            Pharmacy Management
+        </h1>
+        <a href="{{ url_for('create_prescription') }}" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i>Create Prescription
+        </a>
+    </div>
+
+    <!-- Medications Inventory -->
+    <div class="bg-white rounded-lg card-shadow mb-6">
+        <div class="px-6 py-4 bg-purple-50 border-b">
+            <h2 class="text-lg font-semibold text-gray-800">
+                <i class="fas fa-warehouse mr-2 text-purple-600"></i>Medication Inventory
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for medication in medications %}
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-gray-900">{{ medication.name }}</h3>
+                        <span class="text-lg font-bold text-purple-600">${{ "%.2f"|format(medication.price) }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">{{ medication.description }}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                            {{ medication.category }}
+                        </span>
+                        <span class="text-sm text-gray-500">Stock: {{ medication.stock }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescriptions List -->
+    <div class="bg-white rounded-lg card-shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b">
+            <h2 class="text-lg font-semibold text-gray-800">Prescriptions</h2>
+        </div>
+        
+        {% if prescriptions %}
+            <div class="divide-y divide-gray-200">
+                {% for prescription in prescriptions %}
+                <div class="p-6 hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <div class="bg-purple-100 text-purple-600 p-2 rounded-full mr-3">
+                                    <i class="fas fa-prescription-bottle"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">{{ prescription.patient_name }}</h3>
+                                    <p class="text-sm text-gray-600">
+                                        <i class="fas fa-user-md mr-1"></i>
+                                        Prescribed by {{ prescription.doctor_name }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500">Medication</label>
+                                    <p class="text-gray-900">{{ prescription.medication_name }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500">Quantity</label>
+                                    <p class="text-gray-900">{{ prescription.quantity }} units</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500">Dosage</label>
+                                    <p class="text-gray-900">{{ prescription.dosage }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium text-gray-500">Duration</label>
+                                    <p class="text-gray-900">{{ prescription.duration }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label class="text-sm font-medium text-gray-500">Prescription Date</label>
+                                <p class="text-gray-900">{{ prescription.prescription_date }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col items-end space-y-2 ml-4">
+                            <span class="px-3 py-1 text-sm rounded-full font-medium
+                                {% if prescription.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif prescription.status == 'dispensed' %}bg-blue-100 text-blue-800
+                                {% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ prescription.status|title }}
+                            </span>
+                            <p class="text-lg font-bold text-purple-600">${{ "%.2f"|format(prescription.total_amount) }}</p>
+                            
+                            {% if prescription.status == 'pending' %}
+                            <div class="flex space-x-2">
+                                <a href="{{ url_for('update_prescription', prescription_id=prescription.id, status='dispensed') }}" 
+                                   class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-pills mr-1"></i>Dispense
+                                </a>
+                                <a href="{{ url_for('update_prescription', prescription_id=prescription.id, status='paid') }}" 
+                                   class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
+                                    <i class="fas fa-dollar-sign mr-1"></i>Mark Paid
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-prescription-bottle text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No prescriptions created</h3>
+                <p class="text-gray-500 mb-4">Create your first prescription to get started.</p>
+                <a href="{{ url_for('create_prescription') }}" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                    Create Prescription
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

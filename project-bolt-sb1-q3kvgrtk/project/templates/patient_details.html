@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.first_name }} {{ patient.last_name }} - Patient Details{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-6">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-user mr-3 text-blue-600"></i>
+                    {{ patient.first_name }} {{ patient.last_name }}
+                </h1>
+                <div class="space-x-2">
+                    <a href="{{ url_for('schedule_appointment') }}?patient_id={{ patient.id }}" 
+                       class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-calendar-plus mr-2"></i>Schedule Appointment
+                    </a>
+                    <a href="{{ url_for('patients') }}" 
+                       class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Patients
+                    </a>
+                </div>
+            </div>
+            <p class="text-gray-600 mt-2">Electronic Health Record</p>
+        </div>
+
+        <!-- Patient Information Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Personal Information -->
+            <div class="bg-white rounded-lg card-shadow">
+                <div class="px-6 py-4 bg-blue-50 border-b">
+                    <h2 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-user mr-2 text-blue-600"></i>Personal Information
+                    </h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Full Name</label>
+                            <p class="text-gray-900">{{ patient.first_name }} {{ patient.last_name }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Date of Birth</label>
+                            <p class="text-gray-900">{{ patient.date_of_birth }}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Gender</label>
+                            <p class="text-gray-900">{{ patient.gender|title }}</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Blood Type</label>
+                            <p class="text-gray-900">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    {{ patient.blood_type or 'Not specified' }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Registration Date</label>
+                        <p class="text-gray-900">{{ patient.registration_date }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="bg-white rounded-lg card-shadow">
+                <div class="px-6 py-4 bg-green-50 border-b">
+                    <h2 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-phone mr-2 text-green-600"></i>Contact Information
+                    </h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Phone Number</label>
+                        <p class="text-gray-900">{{ patient.phone }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Email</label>
+                        <p class="text-gray-900">{{ patient.email }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Address</label>
+                        <p class="text-gray-900">{{ patient.address or 'Not provided' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Emergency Contact</label>
+                        <p class="text-gray-900">{{ patient.emergency_contact or 'Not provided' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Information -->
+            <div class="bg-white rounded-lg card-shadow lg:col-span-2">
+                <div class="px-6 py-4 bg-purple-50 border-b">
+                    <h2 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-notes-medical mr-2 text-purple-600"></i>Medical Information
+                    </h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Insurance Number</label>
+                        <p class="text-gray-900">{{ patient.insurance_number or 'Not provided' }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Medical History</label>
+                        <div class="mt-2 p-4 bg-gray-50 rounded-lg">
+                            <p class="text-gray-900">{{ patient.medical_history or 'No medical history recorded' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Allergies</label>
+                        <div class="mt-2 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p class="text-gray-900">
+                                {% if patient.allergies %}
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                    {{ patient.allergies }}
+                                {% else %}
+                                    No known allergies
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
